@@ -233,10 +233,22 @@ class PurchaseRequest extends AbstractRequest
             $amount->addAttribute('currencyCode', $this->getCurrency());
             $amount->addAttribute('exponent', $this->getCurrencyDecimalPlaces());
 
-            $order->addChild('paymentMethodMask')->addChild('include')->addAttribute(
-                'code',
-                $this->getWorldpayPaymentType($this->getPaymentType())
-            );
+            if ($this->getPaymentMethod() == "TRUSTLY-SSL") {
+
+                $paymentDetails = $order->addChild('paymentDetails');
+                $trustly = $paymentDetails->addChild('TRUSTLY-SSL');
+                $trustly->addAttribute('shopperCountryCode', $this->getCard()->getCountry());
+                $trustly->addChild('successURL', $this->getReturnUrl());
+                $trustly->addChild('cancelURL', $this->getReturnUrl());
+                $trustly->addChild('pendingURL', $this->getReturnUrl());
+
+            }else{
+
+                $order->addChild('paymentMethodMask')->addChild('include')->addAttribute(
+                    'code',
+                    $this->getWorldpayPaymentType($this->getPaymentType())
+                );
+            }
 
             $shopper = $order->addChild('shopper');
 
